@@ -9,6 +9,10 @@ const isJpeg = buf.length > 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] ==
 if (!isPng && !isJpeg) {
   throw new Error("entry.png is neither a PNG nor a JPEG (bad magic bytes)");
 }
+// The gate allows at most 1 MiB: refuse an oversized image here instead of failing the gate.
+if (buf.length > 1048576) {
+  throw new Error(`entry.png is ${buf.length} bytes, over the 1,048,576 byte limit`);
+}
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
 mkdirSync(outDir, { recursive: true });
 copyFileSync(src, join(outDir, "entry.png"));
